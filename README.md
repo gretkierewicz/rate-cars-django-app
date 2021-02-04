@@ -2,8 +2,46 @@
 
 **rate_cars** - simple REST API for rating car models
 
-Deployed at: [_TBD_]()
+Deployed at: [Heroku platform](https://tranquil-caverns-25726.herokuapp.com/)
 
+---
+
+## Deployment
+
+Setting up (needs 
+[git](https://git-scm.com/downloads),
+[docker](https://docs.docker.com/compose/install/) and
+[heroku](https://devcenter.heroku.com/articles/heroku-cli) clients installed +
+heroku (free) [account registered](https://signup.heroku.com)):
+
+```bash
+# create folder for project
+mkdir rate_cars
+cd rate_cars
+
+# get copy of the application's repo
+git clone https://github.com/gretkierewicz/rate_cars.git .
+
+# pre-build app with docker-compose
+docker-compose build
+
+# if not yet done - login with heroku and create app for deployment
+heroku login
+heroku create
+# if this is not your only heroku app (check with 'heroku apps' command)
+# at end of each next line add: -a full_app_name
+# app name is listed after creating and has format 'word-word-number'
+
+# setup at least SECRET_KEY env variable (not necessary, but recomended)
+heroku config:set SECRET_KEY=type_in_your_secret_key_here
+
+# push and release container
+heroku container:push web
+heroku container:release web
+
+# start app in web-browser
+heroku open
+```
 ---
 
 ## Assumptions
@@ -35,7 +73,8 @@ Deployed at: [_TBD_]()
 
 * ### Setup
 
-    * TBD
+    * Containerization with [docker-compose](https://docs.docker.com/compose/)
+    * Running app with [heroku](https://heroku.com/)
 
 ---
 
