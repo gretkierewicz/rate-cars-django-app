@@ -28,12 +28,13 @@ docker-compose build
 # if not yet done - login with heroku and create app for deployment
 heroku login
 heroku create
-# if this is not your only heroku app (check with 'heroku apps' command)
-# at end of each next line add: -a full_app_name
-# app name is listed after creating and has format 'word-word-number'
+# if this is not the only heroku app you have (list apps with 'heroku apps' command)
+# at end of each next command add: -a full_app_name
+# app name is listed after creating it and has format 'word-word-number'
 
-# setup at least SECRET_KEY env variable (not necessary, but recomended)
-heroku config:set SECRET_KEY=type_in_your_secret_key_here
+# create postgresql DB
+# this creates DATABASE_URL env variable as well (settings > DATABASE_URL)
+heroku addons:create heroku-postgresql:hobby-dev
 
 # push and release container
 heroku container:push web
@@ -82,3 +83,18 @@ heroku open
 
 * [Django framework](https://www.djangoproject.com)
 * [Django REST framework](https://www.django-rest-framework.org)
+
+## Used sources of knowledge
+
+* [Deploying Django to Heroku With Docker by Michael Herman](https://testdriven.io/blog/deploying-django-to-heroku-with-docker/)
+
+
+* [docker-compose: django docs](https://docs.docker.com/compose/django/)
+
+
+* [heroku: Container Registry & Runtime (Docker Deploys)](https://devcenter.heroku.com/articles/container-registry-and-runtime)
+* [heroku: Django and Static Assets article](https://devcenter.heroku.com/articles/django-assets)
+* [heroku: Local Development with Docker Compose](https://devcenter.heroku.com/articles/local-development-with-docker-compose)
+
+
+* [StackOverFlow: nice solution with get_random_secret_key()](https://stackoverflow.com/questions/59719175/where-to-run-collectstatic-when-deploying-django-app-to-heroku-using-docker)

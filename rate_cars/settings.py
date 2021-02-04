@@ -13,6 +13,9 @@ import os
 from pathlib import Path
 import dj_database_url
 
+from django.core.management.utils import get_random_secret_key
+
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -20,7 +23,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.1/howto/deployment/checklist/
 
-SECRET_KEY = os.environ.get('SECRET_KEY', default='foo')
+SECRET_KEY = os.environ.get('SECRET_KEY', default=get_random_secret_key())
 
 DEBUG = int(os.environ.get('DEBUG', default=0))
 
@@ -30,6 +33,7 @@ ALLOWED_HOSTS = ['localhost', '127.0.0.1', '.herokuapp.com']
 # Application definition
 
 INSTALLED_APPS = [
+    'rest_framework',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -76,10 +80,11 @@ WSGI_APPLICATION = 'rate_cars.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': './db.sqlite3',
+        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
     }
 }
 
+# get database url from env vars and update DB connection with it
 DATABASE_URL = os.environ.get('DATABASE_URL')
 db_from_env = dj_database_url.config(default=DATABASE_URL, conn_max_age=500, ssl_require=True)
 DATABASES['default'].update(db_from_env)
