@@ -40,6 +40,9 @@ heroku addons:create heroku-postgresql:hobby-dev
 heroku container:push web
 heroku container:release web
 
+# create DB tables
+heroku run python manage.py migrate
+
 # start app in web-browser
 heroku open
 ```
