@@ -53,7 +53,7 @@ heroku open
 * ### Endpoints
 
     * POST /cars
-        * [ ] Request body should contain car make and model name
+        * [X] Request body should contain car make and model name
         * [ ] Based on this data, its existence should be checked here https://vpic.nhtsa.dot.gov/api/
         * [ ] If the car doesn't exist - return an error
         * [ ] If the car exists - it should be saved in the database
@@ -62,7 +62,7 @@ heroku open
         * [ ] Add a rate for a car from 1 to 5
     
     * GET /cars
-        * [ ] Should fetch list of all cars already present in application database with their current average rate
+        * [X] Should fetch list of all cars already present in application database with their current average rate
     
     * GET /popular
         * [ ] Should return top cars already present in the database ranking based on number of rates
@@ -92,12 +92,25 @@ heroku open
 * [Deploying Django to Heroku With Docker by Michael Herman](https://testdriven.io/blog/deploying-django-to-heroku-with-docker/)
 
 
-* [docker-compose: django docs](https://docs.docker.com/compose/django/)
+* [docker-compose with django - docs](https://docs.docker.com/compose/django/)
 
 
 * [heroku: Container Registry & Runtime (Docker Deploys)](https://devcenter.heroku.com/articles/container-registry-and-runtime)
-* [heroku: Django and Static Assets article](https://devcenter.heroku.com/articles/django-assets)
+* [heroku: Django and Static Assets article (whitenoise)](https://devcenter.heroku.com/articles/django-assets)
 * [heroku: Local Development with Docker Compose](https://devcenter.heroku.com/articles/local-development-with-docker-compose)
 
 
 * [StackOverFlow: nice solution with get_random_secret_key()](https://stackoverflow.com/questions/59719175/where-to-run-collectstatic-when-deploying-django-app-to-heroku-using-docker)
+    ```python
+    SECRET_KEY = os.environ.get('SECRET_KEY', default=get_random_secret_key())
+    ```
+* [StackOverFlow: good guide for local container update:](https://stackoverflow.com/questions/49316462/how-to-update-existing-images-with-docker-compose)
+    ```shell
+    docker-compose up --force-recreate --build -d
+    docker image prune -f
+    ```
+* [StackOverFlow: how to provide DB migrations in local container:](https://stackoverflow.com/questions/33992867/how-do-you-perform-django-database-migrations-when-using-docker-compose)
+    ```shell
+    #assume django in container named web
+    docker-compose run web python3 manage.py migrate
+    ```
