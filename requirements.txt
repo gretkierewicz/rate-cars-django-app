@@ -5,3 +5,4 @@ whitenoise>=5.2
 djangorestframework>=3.12
 psycopg2>=2.8
 requests>=2.25
+drf-nested-routers>=0.92

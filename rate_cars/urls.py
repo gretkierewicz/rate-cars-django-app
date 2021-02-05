@@ -16,15 +16,21 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
+from rest_framework_nested.routers import NestedDefaultRouter
 
 from cars import views as cars_views
 
 router = DefaultRouter()
-router.register(r'cars', cars_views.CarsViewSet)
+router.register(r'cars', cars_views.CarMakesViewSet, basename='cars')
 # /cars/
-# /cars/{cars_pk}
+# /cars/{make}
+cars_router = NestedDefaultRouter(router, r'cars', lookup='car')
+cars_router.register(r'models', cars_views.CarModelsViewSet, basename='car-models')
+# /cars/{car_make}/models/
+# /cars/{car_make}/models/{name}
 
 urlpatterns = [
     path('', include(router.urls)),
+    path('', include(cars_router.urls)),
     path('admin/', admin.site.urls),
 ]
