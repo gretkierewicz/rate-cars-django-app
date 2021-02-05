@@ -4,20 +4,38 @@ from rest_framework.fields import CharField
 from rest_framework.serializers import HyperlinkedModelSerializer
 from rest_framework_nested.serializers import NestedHyperlinkedModelSerializer
 
-from cars.models import Cars, CarModels
+from cars.models import Cars, CarModels, CarRates
 from utils.nhtsa_requests import CarsModelsForMake
+
+
+CARS_PARENT_KWARGS = {'car_make': 'car_make__make'}
+
+
+class CarRateSerializer(NestedHyperlinkedModelSerializer):
+    class Meta:
+        model = CarRates
+        fields = ['rate']
+        extra_kwargs = {
+            'rate': {'min_value': 1, 'max_value': 5, }
+        }
+    parent_lookup_kwargs = CARS_PARENT_KWARGS
+
+    def create(self, validated_data):
+        # add model instance - see updating data in Car Model view's action: 'rate'
+        car_model = self.initial_data.get('car_model')
+        if car_model:
+            validated_data.update({'car_model': car_model})
+        return super().create(validated_data)
 
 
 class CarModelsSerializer(NestedHyperlinkedModelSerializer):
     class Meta:
         model = CarModels
-        fields = ['url', 'name']
+        fields = ['url', 'name', 'avg_rate']
         extra_kwargs = {
             'url': {'view_name': 'car-models-detail', 'lookup_field': 'name'},
         }
-    parent_lookup_kwargs = {
-        'car_make': 'car_make__make'
-    }
+    parent_lookup_kwargs = CARS_PARENT_KWARGS
 
 
 class CarsSerializer(HyperlinkedModelSerializer):

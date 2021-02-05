@@ -28,6 +28,8 @@ cars_router = NestedDefaultRouter(router, r'cars', lookup='car')
 cars_router.register(r'models', cars_views.CarModelsViewSet, basename='car-models')
 # /cars/{car_make}/models/
 # /cars/{car_make}/models/{name}
+# VarModelsViewSet's action 'rate':
+# /cars/{car_make}/models/{name}/rate/
 
 urlpatterns = [
     path('', include(router.urls)),
