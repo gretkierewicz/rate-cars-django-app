@@ -1,10 +1,11 @@
+from django.db.models import Count
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.viewsets import GenericViewSet, mixins
 from rest_framework_nested.viewsets import NestedViewSetMixin
 
-from cars.models import Cars, CarModels
-from cars.serializers import CarsSerializer, CarModelsSerializer, CarRateSerializer
+from cars.models import Cars, CarModels, CarRates
+from cars.serializers import CarsSerializer, CarModelsSerializer, CarRateSerializer, PopularCarsSerializer
 
 
 class CarMakesViewSet(GenericViewSet,
@@ -15,6 +16,15 @@ class CarMakesViewSet(GenericViewSet,
     queryset = Cars.objects.all()
     serializer_class = CarsSerializer
     lookup_field = 'make'
+
+    @action(detail=False, methods=['GET'])
+    # display 5 most rated car models
+    def popular(self, request, *args, **kwargs):
+        # swap to Popular Cars Serializer in case of this action
+        self.serializer_class = PopularCarsSerializer
+        queryset = CarModels.objects.annotate(count=Count('rates__id')).order_by('-count', 'car_make', 'name')[:5]
+        serializer = self.serializer_class(queryset, many=True, context={'request': request})
+        return Response(serializer.data)
 
 
 class CarModelsViewSet(NestedViewSetMixin,

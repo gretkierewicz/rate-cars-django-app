@@ -26,6 +26,10 @@ class CarModels(models.Model):
         rates = [_.rate for _ in self.rates.all()]
         return mean(rates) if rates else 0
 
+    @property
+    def rates_number(self):
+        return len(self.rates.all())
+
 
 class CarRates(models.Model):
     rate = models.SmallIntegerField()

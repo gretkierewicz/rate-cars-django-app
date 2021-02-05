@@ -1,6 +1,7 @@
 from django.core.exceptions import ObjectDoesNotExist
 from rest_framework.exceptions import ValidationError
 from rest_framework.fields import CharField
+from rest_framework.relations import SlugRelatedField
 from rest_framework.serializers import HyperlinkedModelSerializer
 from rest_framework_nested.serializers import NestedHyperlinkedModelSerializer
 
@@ -38,6 +39,17 @@ class CarModelsSerializer(NestedHyperlinkedModelSerializer):
     parent_lookup_kwargs = CARS_PARENT_KWARGS
 
 
+class PopularCarsSerializer(CarModelsSerializer):
+    class Meta:
+        model = CarModels
+        fields = ['url', 'car_make', 'name', 'rates_number', 'avg_rate']
+        extra_kwargs = {
+            'url': {'view_name': 'car-models-detail', 'lookup_field': 'name'},
+        }
+
+    car_make = SlugRelatedField(read_only=True, slug_field='make')
+
+
 class CarsSerializer(HyperlinkedModelSerializer):
     class Meta:
         model = Cars
@@ -46,8 +58,6 @@ class CarsSerializer(HyperlinkedModelSerializer):
                   'model_name']
         extra_kwargs = {
             'url': {'lookup_field': 'make'},
-            # disabling unique validator to pass validation process to the .validate() method
-            'make': {'validators': []},
         }
 
     models = CarModelsSerializer(read_only=True, many=True)
