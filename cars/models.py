@@ -16,5 +16,5 @@ class CarModels(models.Model):
         ordering = 'car_make', 'name',
         unique_together = ['name', 'car_make']
 
-    name = models.CharField(max_length=136, unique=True)
+    name = models.CharField(max_length=136)
     car_make = models.ForeignKey(Cars, on_delete=models.CASCADE, related_name='models')
