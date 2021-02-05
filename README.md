@@ -52,9 +52,13 @@ heroku open
 
 * ### Endpoints
 
-    * /cars/
-    * /cars/{cars_pk}
-
+```
+/cars/ -> creating new car (fields: 'make' & 'model_name')
+/cars/{car_make}
+/cars/{car_make}/models/
+/cars/{car_make}/models/{model_name}
+/cars/{car_make}/models/{model_name}/rate/{rate_value} -> posting rate
+```
 ---
 
 * ### Tests
@@ -74,6 +78,7 @@ heroku open
 
 * [Django framework](https://www.djangoproject.com)
 * [Django REST framework](https://www.django-rest-framework.org)
+* [Django Nested Routers](https://github.com/alanjds/drf-nested-routers) - nice package for creating nested resources
 
 ## Used sources of knowledge
 
