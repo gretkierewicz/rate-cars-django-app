@@ -21,6 +21,8 @@ from cars import views as cars_views
 
 router = DefaultRouter()
 router.register(r'cars', cars_views.CarsViewSet)
+# /cars/
+# /cars/{cars_pk}
 
 urlpatterns = [
     path('', include(router.urls)),
