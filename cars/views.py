@@ -4,7 +4,7 @@ from rest_framework.response import Response
 from rest_framework.viewsets import GenericViewSet, mixins
 from rest_framework_nested.viewsets import NestedViewSetMixin
 
-from cars.models import Cars, CarModels, CarRates
+from cars.models import Cars, CarModels
 from cars.serializers import CarsSerializer, CarModelsSerializer, CarRateSerializer, PopularCarsSerializer
 
 
@@ -28,7 +28,7 @@ class CarMakesViewSet(GenericViewSet,
 
 
 class CarModelsViewSet(NestedViewSetMixin,
-                       # Nested View Set Mixin auto filters queryset with parent kwargs
+                       # Nested View Set Mixin auto filters queryset with serializer's parent lookup kwargs
                        GenericViewSet,
                        mixins.ListModelMixin,
                        mixins.RetrieveModelMixin,
@@ -39,6 +39,8 @@ class CarModelsViewSet(NestedViewSetMixin,
     lookup_field = 'name'
 
     @action(detail=True, methods=['GET', 'POST'])
+    # post rate for specific car make and model
+    # GET method only for proper display of Form with build in API view
     def rate(self, request, *args, **kwargs):
         # swap to Car Rate Serializer in case of this action
         self.serializer_class = CarRateSerializer

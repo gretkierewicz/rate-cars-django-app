@@ -53,11 +53,12 @@ heroku open
 * ### Endpoints
 
 ```
-/cars/ -> creating new car (fields: 'make' & 'model_name')
+/cars/ -> post new car
+/cars/popular/ -> list 5 most rated car models
 /cars/{car_make}
 /cars/{car_make}/models/
 /cars/{car_make}/models/{model_name}
-/cars/{car_make}/models/{model_name}/rate/{rate_value} -> posting rate
+/cars/{car_make}/models/{model_name}/rate/{rate_value} -> post rate
 ```
 ---
 
@@ -107,3 +108,4 @@ heroku open
     #assume django in container named web
     docker-compose run web python3 manage.py migrate
     ```
+* [Django query-sets - annotate()](https://docs.djangoproject.com/en/3.1/ref/models/querysets/#annotate)

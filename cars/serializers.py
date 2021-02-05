@@ -3,6 +3,7 @@ from rest_framework.exceptions import ValidationError
 from rest_framework.fields import CharField
 from rest_framework.relations import SlugRelatedField
 from rest_framework.serializers import HyperlinkedModelSerializer
+from rest_framework_nested.relations import NestedHyperlinkedIdentityField
 from rest_framework_nested.serializers import NestedHyperlinkedModelSerializer
 
 from cars.models import Cars, CarModels, CarRates
@@ -19,6 +20,7 @@ class CarRateSerializer(NestedHyperlinkedModelSerializer):
         extra_kwargs = {
             'rate': {'min_value': 1, 'max_value': 5, }
         }
+
     parent_lookup_kwargs = CARS_PARENT_KWARGS
 
     def create(self, validated_data):
@@ -33,19 +35,21 @@ class CarModelsSerializer(NestedHyperlinkedModelSerializer):
     class Meta:
         model = CarModels
         fields = ['url', 'name', 'avg_rate']
-        extra_kwargs = {
-            'url': {'view_name': 'car-models-detail', 'lookup_field': 'name'},
-        }
+
     parent_lookup_kwargs = CARS_PARENT_KWARGS
+
+    url = NestedHyperlinkedIdentityField(
+        view_name='car-models-detail',
+        lookup_field='name',
+        # lookup_url_kwarg same as lookup_field, no need to set up
+        parent_lookup_kwargs=parent_lookup_kwargs
+    )
 
 
 class PopularCarsSerializer(CarModelsSerializer):
     class Meta:
         model = CarModels
         fields = ['url', 'car_make', 'name', 'rates_number', 'avg_rate']
-        extra_kwargs = {
-            'url': {'view_name': 'car-models-detail', 'lookup_field': 'name'},
-        }
 
     car_make = SlugRelatedField(read_only=True, slug_field='make')
 
@@ -67,7 +71,7 @@ class CarsSerializer(HyperlinkedModelSerializer):
     def validate(self, attrs):
         car_make = attrs.get('make')
         model_name = attrs.pop('model_name')
-        # get maker name and models list from vpic.nhtsa.dot.gov/api/
+        # get car make's name and models list from vpic.nhtsa.dot.gov/api/
         cars = CarsModelsForMake(car_make)
         if not cars.make_name:
             raise ValidationError(f"No car maker found for {car_make}")
@@ -80,21 +84,22 @@ class CarsSerializer(HyperlinkedModelSerializer):
             # TODO: returning list of possible model's names in compare to provided string
             raise ValidationError(f"No model named {model_name} found in {cars.make_name}'s models")
         # at this point there is car make found (cars.make_name) and model name as well (fixed_model_name)
-        # manually check unique together condition to eventually raise error from that method
+        # manually check unique together condition to eventually raise error from this point
         try:
             make = Cars.objects.get(make=cars.make_name)
             model = CarModels.objects.get(car_make=make, name=fixed_model_name)
             if model:
                 raise ValidationError(
-                    {'non_field_errors': ['This make and model combination already exists in database.']})
+                    {'non_field_errors': ['This car make and model combination already exists in database.']})
         except ObjectDoesNotExist:
-            # update attrs with fixed data
+            # update attrs with fixed data to create records with it
             attrs.update({'make': cars.make_name, 'model': fixed_model_name})
         return attrs
 
     def create(self, validated_data):
         model_data = {'name': validated_data.pop('model')}
         car_make, created = Cars.objects.get_or_create(**validated_data)
+        # creating car make's model as well
         model_data.update({'car_make': car_make})
         CarModels.objects.create(**model_data)
         return car_make
