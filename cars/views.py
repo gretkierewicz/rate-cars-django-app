@@ -1,4 +1,5 @@
 from django.db.models import Count
+from rest_framework import status
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.viewsets import GenericViewSet, mixins
@@ -40,15 +41,20 @@ class CarModelsViewSet(NestedViewSetMixin,
 
     @action(detail=True, methods=['GET', 'POST'])
     # post rate for specific car make and model
-    # GET method only for proper display of Form with build in API view
     def rate(self, request, *args, **kwargs):
         # swap to Car Rate Serializer in case of this action
         self.serializer_class = CarRateSerializer
-        data = request.data.copy()
-        # update data with car_model instance so it can be serialized easily
-        data.update({'car_model': self.get_object()})
-        rate_serializer = self.get_serializer(data=data)
-        if rate_serializer.is_valid():
-            # validate and save rate
-            rate_serializer.save()
-        return Response(rate_serializer.errors or rate_serializer.data)
+        if request.method == 'POST':
+            data = request.data.copy()
+            # update data with car_model instance so it can be serialized easily
+            data.update({'car_model': self.get_object()})
+            rate_serializer = self.get_serializer(data=data)
+            if rate_serializer.is_valid():
+                # validate and save rate
+                rate_serializer.save()
+            return Response(
+                rate_serializer.errors or rate_serializer.data,
+                status=status.HTTP_400_BAD_REQUEST if rate_serializer.errors else status.HTTP_200_OK)
+        # GET method -  get_object() to throw error for wrong url / object not found
+        self.get_object()
+        return Response(None)
