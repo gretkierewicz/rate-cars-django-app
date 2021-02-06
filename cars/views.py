@@ -1,4 +1,6 @@
+from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import Count
+from django.shortcuts import get_object_or_404
 from rest_framework import status
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -38,6 +40,14 @@ class CarModelsViewSet(NestedViewSetMixin,
     queryset = CarModels.objects.all()
     serializer_class = CarModelsSerializer
     lookup_field = 'name'
+
+    def list(self, request, *args, **kwargs):
+        # FIX not to respond with 200-OK for wrong parent's make kwarg
+        try:
+            Cars.objects.get(make=kwargs.get('car_make'))
+        except ObjectDoesNotExist:
+            return Response([], status=status.HTTP_404_NOT_FOUND)
+        return super().list(request, *args, **kwargs)
 
     @action(detail=True, methods=['GET', 'POST'])
     # post rate for specific car make and model
