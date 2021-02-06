@@ -71,7 +71,12 @@ heroku open
 
 ### Tests
 
-* TBD
+* Valid data/url kwargs:
+  * GET for all endpoints
+  * POST for /cars and /rate
+* Invalid data/url kwargs:
+  * GET for endpoints with kwargs
+  * POST for /cars and /rate
 
 ---
 
