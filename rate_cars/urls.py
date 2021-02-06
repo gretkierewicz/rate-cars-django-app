@@ -36,5 +36,4 @@ cars_router.register(r'models', cars_views.CarModelsViewSet, basename='car-model
 urlpatterns = [
     path('', include(router.urls)),
     path('', include(cars_router.urls)),
-    path('admin/', admin.site.urls),
 ]
