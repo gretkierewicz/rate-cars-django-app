@@ -1,6 +1,4 @@
-from django.core.exceptions import ObjectDoesNotExist
 from rest_framework.exceptions import ValidationError
-from rest_framework.fields import CharField
 from rest_framework.relations import SlugRelatedField
 from rest_framework.serializers import HyperlinkedModelSerializer
 from rest_framework_nested.relations import NestedHyperlinkedIdentityField
@@ -57,49 +55,37 @@ class PopularCarsSerializer(CarModelsSerializer):
 class CarsSerializer(HyperlinkedModelSerializer):
     class Meta:
         model = Cars
-        fields = ['url', 'make', 'models',
-                  # write-only
-                  'model_name']
+        fields = ['url', 'make', 'models']
         extra_kwargs = {
             'url': {'lookup_field': 'make'},
         }
 
-    models = CarModelsSerializer(read_only=True, many=True)
-
-    model_name = CharField(write_only=True)
+    models = CarModelsSerializer(many=True)
 
     def validate(self, attrs):
-        car_make = attrs.get('make')
-        model_name = attrs.pop('model_name')
         # get car make's name and models list from vpic.nhtsa.dot.gov/api/
-        cars = CarsModelsForMake(car_make)
+        cars = CarsModelsForMake(attrs.get('make'))
         if not cars.make_name:
-            raise ValidationError(f"No car maker found for {car_make}")
+            raise ValidationError(f"No car maker found for {attrs.get('make')}")
+        attrs.update({'make': cars.make_name})
         if not cars.models:
             raise ValidationError(f"No models found for {cars.make_name}")
         try:
-            # lowering all model's names to make entering name a bit easier
-            fixed_model_name = next(_ for _ in cars.models if _.lower() == model_name.lower())
+            for model in attrs.get('models'):
+                # lowering all model's names to make entering name a bit easier
+                fixed_model_name = next(_ for _ in cars.models if _.lower() == model['name'].lower())
+                model.update({'name': fixed_model_name})
         except StopIteration:
             # TODO: returning list of possible model's names in compare to provided string
-            raise ValidationError(f"No model named {model_name} found in {cars.make_name}'s models")
-        # at this point there is car make found (cars.make_name) and model name as well (fixed_model_name)
-        # manually check unique together condition to eventually raise error from this point
-        try:
-            make = Cars.objects.get(make=cars.make_name)
-            model = CarModels.objects.get(car_make=make, name=fixed_model_name)
-            if model:
-                raise ValidationError(
-                    {'non_field_errors': ['This car make and model combination already exists in database.']})
-        except ObjectDoesNotExist:
-            # update attrs with fixed data to create records with it
-            attrs.update({'make': cars.make_name, 'model': fixed_model_name})
+            raise ValidationError(f"No model named {model['name']} found in {cars.make_name}'s models")
+        # at this point there is car make found (cars.make_name) and model names as well
         return attrs
 
     def create(self, validated_data):
-        model_data = {'name': validated_data.pop('model')}
+        models = validated_data.pop('models')
         car_make, created = Cars.objects.get_or_create(**validated_data)
-        # creating car make's model as well
-        model_data.update({'car_make': car_make})
-        CarModels.objects.create(**model_data)
+        # creating car make's models as well
+        for model in models:
+            # get_or_create() to avoid unique_together validation error
+            car_make.models.get_or_create(**model)
         return car_make
