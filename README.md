@@ -1,4 +1,4 @@
-# rate_cars
+# Rate Cars
 
 Simple REST API for creating and rating car models.\
 Car make and model existence checked with third-party REST API.
@@ -9,24 +9,23 @@ Car make and model existence checked with third-party REST API.
 
 ## Deployment
 
-Setting up (needs 
+Requires 
 [git](https://git-scm.com/downloads),
 [docker](https://docs.docker.com/compose/install/) and
 [heroku](https://devcenter.heroku.com/articles/heroku-cli) clients installed +
-heroku (free) [account registered](https://signup.heroku.com)):
+heroku (free) [account registered](https://signup.heroku.com)\
+Interpreter - _**Windows PowerShell**_ || _**git v2.29.2**_ || _**docker v20.10.2**_ || _**heroku v7.47.11**_
 
 ```shell
-# tested with Windows' PoweShell
-
 # create folder for project
 mkdir rate_cars
 cd rate_cars
 
 # get copy of the application's files
 git clone https://github.com/gretkierewicz/rate_cars.git .
-# there is empty .env file in repo to make building container strait-forward
+# there is empty .env file in repo to make building container straight-forward
 
-# pre-build app with docker-compose
+# build app with docker-compose
 docker-compose build
 
 # login with heroku and create app for deployment
@@ -34,9 +33,6 @@ heroku login
 heroku create
 # login to container
 heroku container:login
-
-# if you would like to push container to different app
-# at end of each next command add: -a full_app_name
 
 # create postgresql DB (this creates DATABASE_URL env variable as well)
 heroku addons:create heroku-postgresql:hobby-dev
@@ -55,9 +51,7 @@ heroku open
 ```
 ---
 
-## Assumptions
-
-### Endpoints
+## Endpoints
 
 ```
 /cars/ -> post new car
@@ -67,23 +61,40 @@ heroku open
 /cars/{car_make}/models/{model_name}
 /cars/{car_make}/models/{model_name}/rate/{rate_value} -> post rate
 ```
+json format example for posting cars:
+```json
+{
+  "make": "Tesla",
+  "models": [
+    {"name": "Roadster"},
+    {"name": "Model 3"},
+    {"name": "Model X"},
+    {"name": "Model S"}
+  ]
+}
+```
+json format example for posting rate:
+```json
+{
+  "rate": 5
+}
+```
+
 ---
 
-### Tests
+## Tests
 
-* Valid data/url kwargs:
-  * GET for all endpoints
-  * POST for /cars and /rate
-* Invalid data/url kwargs:
-  * GET for endpoints with kwargs
-  * POST for /cars and /rate
+* Response's status codes
 
----
-
-### Setup
-
-* Containerization with [docker-compose](https://docs.docker.com/compose/)
-* Running app with [heroku](https://heroku.com/)
+  * Valid data/url kwargs
+    * GET for all endpoints
+    * POST for /cars and /rate
+    * DELETE for car make and car model
+    
+  * Invalid data/url kwargs
+    * GET for endpoints with kwargs
+    * POST for /cars and /rate
+    * DELETE for car make and car model
 
 ---
 
@@ -91,7 +102,10 @@ heroku open
 
 * [Django framework](https://www.djangoproject.com)
 * [Django REST framework](https://www.django-rest-framework.org)
-* [Django Nested Routers](https://github.com/alanjds/drf-nested-routers) - nice package for creating nested resources
+* [Django Nested Routers](https://github.com/alanjds/drf-nested-routers)
+* [requests package](https://pypi.org/project/requests/)
+
+---
 
 ## Sources of knowledge / heplpfull links
 
@@ -119,3 +133,5 @@ heroku open
     #assume django in container named web
     docker-compose run web python3 manage.py migrate
     ```
+
+---

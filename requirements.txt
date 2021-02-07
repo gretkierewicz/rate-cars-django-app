@@ -1,8 +1,11 @@
-Django>=3.1.6
+# deploy-related:
 gunicorn>=20.0.4
 dj-database-url>=0.5.0
 whitenoise>=5.2
-djangorestframework>=3.12
 psycopg2>=2.8
-requests>=2.25
+
+# project-related:
+Django>=3.1.6
+djangorestframework>=3.12
 drf-nested-routers>=0.92
+requests>=2.25
