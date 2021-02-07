@@ -6,6 +6,7 @@ from rest_framework import status
 from rest_framework.test import APITestCase, APIClient, APIRequestFactory
 
 from cars.models import Cars
+from cars.serializers import CarsSerializer, CarModelsSerializer
 
 
 def rand_str(k=10):
@@ -99,6 +100,30 @@ class CarsTests(APITestCase):
             with APITestCase.subTest(self, f"url: {url}"):
                 response = self.client.get(url)
                 self.assertEqual(response.status_code, status.HTTP_200_OK, response.data or response)
+
+    def test_data_get_list(self):
+        response = self.client.get(self.valid_urls['cars-list'])
+        self.assertJSONEqual(
+            json.dumps(response.data),
+            CarsSerializer(instance=Cars.objects.all(), many=True, context={'request': self.factory.get('')}).data,
+            response.data or response
+        )
+
+    def test_data_get_car_make(self):
+        response = self.client.get(self.valid_urls['cars-detail'])
+        self.assertJSONEqual(
+            json.dumps(response.data),
+            CarsSerializer(instance=self.instance, context={'request': self.factory.get('')}).data,
+            response.data or response
+        )
+
+    def test_data_get_car_model(self):
+        response = self.client.get(self.valid_urls['car-models-detail'])
+        self.assertJSONEqual(
+            json.dumps(response.data),
+            CarModelsSerializer(instance=self.instance.models.first(), context={'request': self.factory.get('')}).data,
+            response.data or response
+        )
 
     def test_status_code_post_valid_car(self):
         response = self.client.post(
