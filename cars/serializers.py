@@ -47,7 +47,7 @@ class CarModelsSerializer(NestedHyperlinkedModelSerializer):
 class PopularCarsSerializer(CarModelsSerializer):
     class Meta:
         model = CarModels
-        fields = ['url', 'car_make', 'name', 'rates_number', 'avg_rate']
+        fields = ['url', 'car_make', 'name', 'avg_rate', 'rates_number']
 
     car_make = SlugRelatedField(read_only=True, slug_field='make')
 
